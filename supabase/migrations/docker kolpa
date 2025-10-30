@@ -1,0 +1,38 @@
+docker run -p 8042:8042 jodogne/orthanc-plugins
+
+
+mkdir /home/yourusername/dicom-data
+docker run -p 8042:8042 -v /lolasosa:/var/lib/orthanc/db jodogne/orthanc-plugins
+
+
+C:\Users\iskagkos\lolasosa
+
+
+C:\Users\iskagkos\lolasosa
+
+C:\Users\iskagkos>docker run -p 8042:8042 -v C:\Users\iskagkos\lolasosa:/var/lib/orthanc/db jodogne/orthanc-plugins
+
+
+docker run -p 8042:8042 -v C:/Users/iskagkos/lolasosa:/var/lib/orthanc/db jodogne/orthanc-plugins
+docker run -d --name orthanc -p 8042:8042 -v C:/Users/iskagkos/lolasosa:/var/lib/orthanc/db jodogne/orthanc-plugins
+
+
+docker run -d --name orthanc -p 8042:8042 -v C:/Users/iskagkos/lolasosa:/var/lib/orthanc/db -v C:/Users/iskagkos/orthanc-config/orthanc.json:/etc/orthanc/orthanc.json jodogne/orthanc-plugins
+
+
+
+PS C:\Users\iskagkos> cd D:\Users\iskagkos\Downloads\126
+
+
+
+Get-ChildItem -Path . -Filter '*.gz' -File | ForEach-Object {
+    Write-Host "Extracting $($_.Name)..."
+    $outFile = [IO.Path]::ChangeExtension($_.FullName, $null)
+    $inStream = [IO.File]::OpenRead($_.FullName)
+    $outStream = [IO.File]::Create($outFile)
+    $gzipStream = New-Object IO.Compression.GzipStream($inStream, [IO.Compression.CompressionMode]::Decompress)
+    $gzipStream.CopyTo($outStream)
+    $gzipStream.Close()
+    $outStream.Close()
+    $inStream.Close()
+}

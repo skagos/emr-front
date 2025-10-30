@@ -1,0 +1,23 @@
+{
+  "Name": "MyOrthanc",
+  "HttpServerEnabled": true,
+  "HttpPort": 8042,
+
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": {
+    "orthanc": "orthanc"
+  },
+
+  "RemoteAccessAllowed": true,
+
+  "HttpDescribeErrors": true,
+
+  "DicomCheckModalityManufacturer": false,
+
+  "Cors": {
+    "AllowOrigin": "*",
+    "AllowMethods": "GET, POST, PUT, DELETE, OPTIONS",
+    "AllowHeaders": "Authorization, Content-Type, Accept, Origin",
+    "AllowCredentials": true
+  }
+}
