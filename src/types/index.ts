@@ -25,7 +25,7 @@ export interface Visit {
   followUpDate: string | null;
   createdAt: string;
   updatedAt: string;
-  studyInstanceUid: string;
+  studyInstanceUid: string | null;
 }
 
 export interface VisitWithPatient extends Visit {

@@ -21,6 +21,7 @@ interface Visit {
   reason?: string;
   notes?: string;
   doctorName?: string;
+  studyInstanceUid?: string | null;
 }
 
 interface PatientDetailsPageProps {
@@ -200,17 +201,6 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
             >
               <X className="w-4 h-4" />
               Cancel
-            </button>
-            <button
-              onClick={() =>
-                window.open(
-                  'http://localhost:8042/ohif/viewer?StudyInstanceUIDs=1.2.840.113564.236.177.215.64.112.217.20230814125825063.1060',
-                  '_blank'
-                )
-              }
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-            >
-              Viewer
             </button>
             <button
               onClick={handleSave}
@@ -476,6 +466,23 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                         {visit.notes && (
                           <p className="text-gray-700 text-sm mt-1 italic">{visit.notes}</p>
                         )}
+
+                        {/* ✅ Εμφάνιση κουμπιού μόνο αν υπάρχει StudyInstanceUid */}
+                      {visit.studyInstanceUid && visit.studyInstanceUid.trim() !== '' && (
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${visit.studyInstanceUid}`,
+                              '_blank'
+                            )
+                          }
+                          className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        >
+                          <Activity className="w-4 h-4" />
+                          Open Study
+                        </button>
+                      )}
+
                       </div>
                       {visit.doctorName && (
                         <span className="text-sm text-blue-600 font-medium">

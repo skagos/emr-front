@@ -179,6 +179,23 @@ export default function VisitHistoryPage() {
                           </span>
                         </div>
                       )}
+                        {/* ✅ κουμπί για OHIF μόνο αν υπάρχει StudyInstanceUid */}
+                        {visit.studyInstanceUid && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const ohifUrl = `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${visit.studyInstanceUid}`;
+                                window.open(ohifUrl, '_blank');
+                              }}
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Imaging
+                            </button>
+                          </div>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -252,6 +269,23 @@ export default function VisitHistoryPage() {
                     <p className="text-gray-900">{formatDate(selectedVisit.followUpDate)}</p>
                   </div>
                 )}
+                  {/* ✅ κουμπί OHIF viewer στο details panel */}
+                  {selectedVisit.studyInstanceUid && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <label className="text-sm font-medium text-gray-700 mb-1 block">Imaging</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const ohifUrl = `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${selectedVisit.studyInstanceUid}`;
+                          window.open(ohifUrl, '_blank');
+                        }}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Open in OHIF Viewer
+                      </button>
+                    </div>
+                  )}
               </div>
             </div>
           ) : (
