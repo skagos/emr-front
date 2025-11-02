@@ -13,6 +13,8 @@ import {
   Droplet,
   Eye,
   FileText,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Patient } from '../types';
 
@@ -34,6 +36,8 @@ interface PatientDetailsPageProps {
   onBack: () => void;
 }
 
+// NOTE: this component expects Tailwind configured with `darkMode: 'class'` in tailwind.config.js
+
 export default function PatientDetailsPage({ patientId, onBack }: PatientDetailsPageProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -42,6 +46,36 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   const [error, setError] = useState('');
   const [visits, setVisits] = useState<Visit[]>([]);
   const [loadingVisits, setLoadingVisits] = useState(true);
+
+  // Theme handling for dual-mode (light/dark)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+    } catch (e) {
+      /* ignore */
+    }
+
+    return 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('theme', theme);
+    } catch (e) {
+      // ignore
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
   const API_BASE = 'http://localhost:8080/api/patients';
   const VISITS_API = 'http://localhost:8080/api/visits';
@@ -94,8 +128,8 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
     }
   };
 
-    const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString(undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -135,7 +169,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   };
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
+    new Date(dateString).toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -153,7 +187,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   // 🌀 Loading state
   if (loading) {
     return (
-      <div className="text-center py-12 text-gray-600">
+      <div className="text-center py-12 text-gray-600 dark:text-gray-300">
         Loading patient details...
       </div>
     );
@@ -162,7 +196,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   // ❌ Error state
   if (error) {
     return (
-      <div className="text-center py-12 text-red-600">
+      <div className="text-center py-12 text-red-600 dark:text-red-400">
         Error loading patient: {error}
       </div>
     );
@@ -171,11 +205,11 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   if (!patient) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500">No patient selected</p>
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-300">No patient selected</p>
           <button
             onClick={onBack}
-            className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+            className="mt-4 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
           >
             Go back to patients list
           </button>
@@ -187,292 +221,303 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   const displayData = isEditing ? formData : patient;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-100 font-medium"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back to Patients
-        </button>
-
-        {!isEditing ? (
-          
-          <button
-            onClick={handleEdit}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <Edit2 className="w-4 h-4" />
-            Edit Patient
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <button
-              onClick={handleCancel}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-            >
-              <X className="w-4 h-4" />
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-            >
-              <Save className="w-4 h-4" />
-              Save Changes
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Patient Info */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
-              {displayData?.firstName?.[0]}
-              {displayData?.lastName?.[0]}
-            </div>
-            <div className="text-white">
-              {isEditing ? (
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={formData.firstName || ''}
-                    onChange={(e) => handleChange('firstName', e.target.value)}
-                    className="px-3 py-2 bg-white dark:bg-gray-800/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    placeholder="First Name"
-                  />
-                  <input
-                    type="text"
-                    value={formData.lastName || ''}
-                    onChange={(e) => handleChange('lastName', e.target.value)}
-                    className="px-3 py-2 bg-white dark:bg-gray-800/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    placeholder="Last Name"
-                  />
-                </div>
-              ) : (
-                <h1 className="text-3xl font-bold">
-                  {displayData?.firstName} {displayData?.lastName}
-                </h1>
-              )}
-              {!isEditing && displayData?.dateOfBirth && (
-                <p className="text-blue-100 mt-1">
-                  {calculateAge(displayData.dateOfBirth)} years old • {displayData.gender}
-                </p>
-              )}
-            </div>
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white font-medium"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Patients
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              aria-pressed={theme === 'dark'}
+              className="ml-2 inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:shadow-sm focus:outline-none"
+              title="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              <span className="sr-only">Toggle theme</span>
+            </button>
           </div>
+
+          {!isEditing ? (
+            <button
+              onClick={handleEdit}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Patient
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleCancel}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium"
+              >
+                <X className="w-4 h-4" />
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                <Save className="w-4 h-4" />
+                Save Changes
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Details Section */}
-        <div className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Left column */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Personal Information</h3>
-
-              {/* Date of Birth */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Calendar className="w-4 h-4" />
-                  Date of Birth
-                </label>
-                {isEditing ? (
-                  <input
-                    type="date"
-                    value={formData.dateOfBirth || ''}
-                    onChange={(e) => handleChange('dateOfBirth', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100">
-                    {displayData?.dateOfBirth && formatDate(displayData.dateOfBirth)}
-                  </p>
-                )}
+        {/* Patient Info */}
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
+                {displayData?.firstName?.[0]}
+                {displayData?.lastName?.[0]}
               </div>
-
-              {/* Gender */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Activity className="w-4 h-4" />
-                  Gender
-                </label>
+              <div className="text-white">
                 {isEditing ? (
-                  <select
-                    value={formData.gender || ''}
-                    onChange={(e) => handleChange('gender', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={formData.firstName || ''}
+                      onChange={(e) => handleChange('firstName', e.target.value)}
+                      className="px-3 py-2 bg-white/90 dark:bg-gray-800/60 border border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50"
+                      placeholder="First Name"
+                    />
+                    <input
+                      type="text"
+                      value={formData.lastName || ''}
+                      onChange={(e) => handleChange('lastName', e.target.value)}
+                      className="px-3 py-2 bg-white/90 dark:bg-gray-800/60 border border-white/20 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50"
+                      placeholder="Last Name"
+                    />
+                  </div>
                 ) : (
-                  <p className="text-gray-900 dark:text-gray-100">{displayData?.gender}</p>
+                  <h1 className="text-3xl font-bold">
+                    {displayData?.firstName} {displayData?.lastName}
+                  </h1>
                 )}
-              </div>
-
-              {/* Blood Type */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Droplet className="w-4 h-4" />
-                  Blood Type
-                </label>
-                {isEditing ? (
-                  <select
-                    value={formData.bloodType || ''}
-                    onChange={(e) => handleChange('bloodType', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select Blood Type</option>
-                    <option value="A+">A+</option>
-                    <option value="A-">A-</option>
-                    <option value="B+">B+</option>
-                    <option value="B-">B-</option>
-                    <option value="AB+">AB+</option>
-                    <option value="AB-">AB-</option>
-                    <option value="O+">O+</option>
-                    <option value="O-">O-</option>
-                  </select>
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100">{displayData?.bloodType || '-'}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Right column */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Contact Information</h3>
-
-              {/* Phone */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Phone className="w-4 h-4" />
-                  Phone
-                </label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    value={formData.phone || ''}
-                    onChange={(e) => handleChange('phone', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100">{displayData?.phone || '-'}</p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <Mail className="w-4 h-4" />
-                  Email
-                </label>
-                {isEditing ? (
-                  <input
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100">{displayData?.email || '-'}</p>
-                )}
-              </div>
-
-              {/* Address */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <MapPin className="w-4 h-4" />
-                  Address
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.address || ''}
-                    onChange={(e) => handleChange('address', e.target.value)}
-                    rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100">{displayData?.address || '-'}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Medical Info */}
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Information</h3>
-            <div className="space-y-6">
-              {/* Allergies */}
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  Allergies
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.allergies || ''}
-                    onChange={(e) => handleChange('allergies', e.target.value)}
-                    rows={2}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p
-                    className={`${
-                      displayData?.allergies ? 'text-red-700 font-medium' : 'text-gray-900 dark:text-gray-100'
-                    }`}
-                  >
-                    {displayData?.allergies || 'No known allergies'}
-                  </p>
-                )}
-              </div>
-
-              {/* Medical History */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Medical History
-                </label>
-                {isEditing ? (
-                  <textarea
-                    value={formData.medicalHistory || ''}
-                    onChange={(e) => handleChange('medicalHistory', e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                ) : (
-                  <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
-                    {displayData?.medicalHistory || 'No medical history recorded'}
+                {!isEditing && displayData?.dateOfBirth && (
+                  <p className="text-blue-100 mt-1">
+                    {calculateAge(displayData.dateOfBirth)} years old • {displayData.gender}
                   </p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ✅ Visits Section */}
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Patient Visits</h3>
+          {/* Details Section */}
+          <div className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left column */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Personal Information</h3>
 
-            {loadingVisits ? (
-              <p className="text-gray-500">Loading visits...</p>
-            ) : visits.length === 0 ? (
-              <p className="text-gray-500">No visits recorded for this patient.</p>
-            ) : (
-              <ul className="flex flex-wrap gap-6">
+                {/* Date of Birth */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Calendar className="w-4 h-4" />
+                    Date of Birth
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={formData.dateOfBirth || ''}
+                      onChange={(e) => handleChange('dateOfBirth', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">
+                      {displayData?.dateOfBirth && formatDate(displayData.dateOfBirth)}
+                    </p>
+                  )}
+                </div>
 
+                {/* Gender */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Activity className="w-4 h-4" />
+                    Gender
+                  </label>
+                  {isEditing ? (
+                    <select
+                      value={formData.gender || ''}
+                      onChange={(e) => handleChange('gender', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.gender}</p>
+                  )}
+                </div>
+
+                {/* Blood Type */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Droplet className="w-4 h-4" />
+                    Blood Type
+                  </label>
+                  {isEditing ? (
+                    <select
+                      value={formData.bloodType || ''}
+                      onChange={(e) => handleChange('bloodType', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select Blood Type</option>
+                      <option value="A+">A+</option>
+                      <option value="A-">A-</option>
+                      <option value="B+">B+</option>
+                      <option value="B-">B-</option>
+                      <option value="AB+">AB+</option>
+                      <option value="AB-">AB-</option>
+                      <option value="O+">O+</option>
+                      <option value="O-">O-</option>
+                    </select>
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.bloodType || '-'}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Right column */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Contact Information</h3>
+
+                {/* Phone */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Phone className="w-4 h-4" />
+                    Phone
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={formData.phone || ''}
+                      onChange={(e) => handleChange('phone', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.phone || '-'}</p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <Mail className="w-4 h-4" />
+                    Email
+                  </label>
+                  {isEditing ? (
+                    <input
+                      type="email"
+                      value={formData.email || ''}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.email || '-'}</p>
+                  )}
+                </div>
+
+                {/* Address */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <MapPin className="w-4 h-4" />
+                    Address
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={formData.address || ''}
+                      onChange={(e) => handleChange('address', e.target.value)}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.address || '-'}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Medical Info */}
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Information</h3>
+              <div className="space-y-6">
+                {/* Allergies */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                    Allergies
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={formData.allergies || ''}
+                      onChange={(e) => handleChange('allergies', e.target.value)}
+                      rows={2}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p
+                      className={`${
+                        displayData?.allergies ? 'text-red-700 font-medium' : 'text-gray-900 dark:text-gray-100'
+                      }`}
+                    >
+                      {displayData?.allergies || 'No known allergies'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Medical History */}
+                <div>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                    Medical History
+                  </label>
+                  {isEditing ? (
+                    <textarea
+                      value={formData.medicalHistory || ''}
+                      onChange={(e) => handleChange('medicalHistory', e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
+                      {displayData?.medicalHistory || 'No medical history recorded'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ✅ Visits Section */}
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Patient Visits</h3>
+
+              {loadingVisits ? (
+                <p className="text-gray-500 dark:text-gray-400">Loading visits...</p>
+              ) : visits.length === 0 ? (
+                <p className="text-gray-500 dark:text-gray-400">No visits recorded for this patient.</p>
+              ) : (
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {visits.map((visit) => (
                     <li key={visit.id} className="flex">
-                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex-1">
+                      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-6 flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Visit Details</h3>
 
                         <div className="space-y-4">
                           <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <Calendar className="w-4 h-4" />
                               Visit Date
                             </label>
@@ -480,7 +525,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                           </div>
 
                           <div>
-                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <FileText className="w-4 h-4" />
                               Reason
                             </label>
@@ -489,35 +534,35 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
 
                           {visit.diagnosis && (
                             <div>
-                              <label className="text-sm font-medium text-gray-700 mb-1 block">Diagnosis</label>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Diagnosis</label>
                               <p className="text-gray-900 dark:text-gray-100">{visit.diagnosis}</p>
                             </div>
                           )}
 
                           {visit.treatment && (
                             <div>
-                              <label className="text-sm font-medium text-gray-700 mb-1 block">Treatment</label>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Treatment</label>
                               <p className="text-gray-900 dark:text-gray-100">{visit.treatment}</p>
                             </div>
                           )}
 
                           {visit.notes && (
                             <div>
-                              <label className="text-sm font-medium text-gray-700 mb-1 block">Notes</label>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Notes</label>
                               <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{visit.notes}</p>
                             </div>
                           )}
 
                           {visit.followUpDate && (
                             <div>
-                              <label className="text-sm font-medium text-gray-700 mb-1 block">Follow-up Date</label>
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Follow-up Date</label>
                               <p className="text-gray-900 dark:text-gray-100">{formatDate(visit.followUpDate)}</p>
                             </div>
                           )}
 
                           {visit.studyInstanceUid && (
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                              <label className="text-sm font-medium text-gray-700 mb-1 block">Imaging</label>
+                            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Imaging</label>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -535,9 +580,9 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                       </div>
                     </li>
                   ))}
-                </ul>                
-              </ul>
-            )}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </div>
