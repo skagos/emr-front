@@ -9,7 +9,7 @@ export interface Patient {
   address?: string;
   medicalHistory?: string;
   allergies?: string;
-  bloodType?: string;
+  amka?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +26,7 @@ export interface Visit {
   createdAt: string;
   updatedAt: string;
   studyInstanceUid: string | null;
+  status: string;
 }
 
 export interface VisitWithPatient extends Visit {

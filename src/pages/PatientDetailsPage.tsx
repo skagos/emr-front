@@ -18,6 +18,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { Patient } from '../types';
+import { printReceipt } from '../components/ReceiptPrint';
 
 // (προαιρετικά) Αν έχεις τύπο Visit, μπορείς να τον βάλεις εδώ
 interface Visit {
@@ -30,6 +31,8 @@ interface Visit {
   diagnosis?: string;
   followUpDate?: string;
   treatment?: string;
+  visitDate?: string | null;
+  status?: 'Upcoming' | 'Performed'; // <-- add this line
 }
 
 interface PatientDetailsPageProps {
@@ -77,6 +80,61 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
       // ignore
     }
   }, [theme]);
+
+
+  // helper για να φτιάξει το object που περιμένει το printReceipt
+  const DEFAULT_FEE = 50.0; // αλλάξτε αν έχετε άλλη τιμή ή πεδίο κόστους
+
+  function getReceiptPayload() {
+    // παίρνουμε την πιο πρόσφατη επίσκεψη αν υπάρχει
+    const latestVisit = visits && visits.length > 0 ? visits[0] : null;
+    const nowIso = new Date().toISOString();
+
+    const items = latestVisit
+      ? [
+          {
+            code: latestVisit.id || 'VISIT',
+            description: latestVisit.reason || `Visit on ${latestVisit.visitDate || latestVisit.date || ''}`,
+            qty: 1,
+            price: latestVisit.treatment ? Number((latestVisit as any).treatmentCost || DEFAULT_FEE) : DEFAULT_FEE,
+            subtotal: latestVisit.treatment ? Number((latestVisit as any).treatmentCost || DEFAULT_FEE) : DEFAULT_FEE,
+            vat: '0%', // προσαρμόστε ανάλογα
+            total: latestVisit.treatment ? Number((latestVisit as any).treatmentCost || DEFAULT_FEE) : DEFAULT_FEE,
+          },
+        ]
+      : [
+          {
+            code: 'GEN-1',
+            description: 'Medical services',
+            qty: 1,
+            price: DEFAULT_FEE,
+            subtotal: DEFAULT_FEE,
+            vat: '0%',
+            total: DEFAULT_FEE,
+          },
+        ];
+
+    const totalAmount = items.reduce((s, it) => s + Number(it.total || 0), 0);
+
+    return {
+      issuer_name: 'Your Clinic Name',      // => βάλτε το πραγματικό σας
+      issuer_afm: '123456789',              // => ή τραβήξτε από config
+      issuer_profession: 'Medical Center',
+      issuer_doy: 'ΔΟΥ ΧΟΝ',                // προσαρμόστε
+      issuer_address: 'Οδός Παράδειγμα 1, Αθήνα',
+      receipt_series: 'Α',                  // ό,τι σειρά θέλετε
+      receipt_number: String(Date.now()).slice(-6), // γρήγορος μοναδικός αριθμός
+      receipt_date: nowIso,
+      payment_method: 'Cash',
+      mark_code: '',
+      customer_afm: patient?.amka || '',
+      customer_name: `${patient?.firstName || ''} ${patient?.lastName || ''}`.trim(),
+      customer_address: patient?.address || '',
+      items,
+      total_amount: totalAmount,
+      notes: latestVisit?.notes || '—',
+    };
+  }
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
@@ -131,14 +189,16 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
     }
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const formatDateTime = (dateString: string|null|undefined) => {
+    if(dateString){
+      return new Date(dateString).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -221,6 +281,20 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
     );
   }
 
+  {patient && (
+  <button
+    onClick={() => onStartNewVisit?.(patient!.id)}
+    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors font-medium"
+  >
+    <Plus className="w-4 h-4" />
+    New Visit
+  </button>
+)}
+
+
+
+
+
   const displayData = isEditing ? formData : patient;
 
   return (
@@ -258,7 +332,18 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                 New Visit
               </button>
             )}
-
+  {/* Print Receipt */}
+  <button
+    onClick={() => {
+      const payload = getReceiptPayload();
+      printReceipt(payload);
+    }}
+    className="ml-2 flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-500 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 transition-colors font-medium"
+    title="Print receipt for this patient"
+  >
+    <FileText className="w-4 h-4" />
+    Print Receipt
+  </button>
           </div>
 
           {!isEditing ? (
@@ -359,7 +444,6 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                 {/* Gender */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <Activity className="w-4 h-4" />
                     Gender
                   </label>
                   {isEditing ? (
@@ -381,27 +465,17 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                 {/* Blood Type */}
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <Droplet className="w-4 h-4" />
-                    Blood Type
+                    AMKA
                   </label>
                   {isEditing ? (
-                    <select
-                      value={formData.bloodType || ''}
-                      onChange={(e) => handleChange('bloodType', e.target.value)}
+                    <input
+                      type="text"
+                      value={formData.amka || ''}
+                      onChange={(e) => handleChange('amka', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Select Blood Type</option>
-                      <option value="A+">A+</option>
-                      <option value="A-">A-</option>
-                      <option value="B+">B+</option>
-                      <option value="B-">B-</option>
-                      <option value="AB+">AB+</option>
-                      <option value="AB-">AB-</option>
-                      <option value="O+">O+</option>
-                      <option value="O-">O-</option>
-                    </select>
+                    />
                   ) : (
-                    <p className="text-gray-900 dark:text-gray-100">{displayData?.bloodType || '-'}</p>
+                    <p className="text-gray-900 dark:text-gray-100">{displayData?.amka || '-'}</p>
                   )}
                 </div>
               </div>
@@ -527,18 +601,34 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {visits.map((visit) => (
                     <li key={visit.id} className="flex">
-                      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-6 flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Visit Details</h3>
-
+                      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-6 flex-1 w-full">
+                          {/* Status badge */}
+                          {visit.status && (
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`w-2.5 h-2.5 rounded-full ${
+                                  visit.status === 'Upcoming' ? 'bg-yellow-400' : 'bg-green-500'
+                                }`}
+                              ></span>
+                              <span
+                                className={`text-sm font-medium ${
+                                  visit.status === 'Upcoming'
+                                    ? 'text-yellow-600 dark:text-yellow-400'
+                                    : 'text-green-600 dark:text-green-400'
+                                }`}
+                              >
+                                {visit.status === 'Upcoming' ? 'Upcoming' : 'Performed'}
+                              </span>
+                            </div>
+                          )}
                         <div className="space-y-4">
                           <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <Calendar className="w-4 h-4" />
                               Visit Date
                             </label>
-                            <p className="text-gray-900 dark:text-gray-100">{formatDateTime(visit.date)}</p>
+                            <p className="text-gray-900 dark:text-gray-100">{formatDateTime(visit.visitDate)}</p>
                           </div>
-
                           <div>
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                               <FileText className="w-4 h-4" />
@@ -575,6 +665,15 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                             </div>
                           )}
 
+                          {visit.status === "Upcoming" && (
+                            <button
+                              onClick={() => onEditVisit?.(visit.id)}
+                              className="ml-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
+                            >
+                              Update Visit
+                            </button>
+                          )}
+
                           {visit.studyInstanceUid && (
                             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Imaging</label>
@@ -590,14 +689,6 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit,
                                 Open in OHIF Viewer
                               </button>
 
-                              
-                              {/* Update Visit Button */}
-                              <button
-                                onClick={() => onEditVisit?.(visit.id)}
-                                className="ml-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
-                              >
-                                Update Visit
-                              </button>
                             </div>
                           )}
                         </div>

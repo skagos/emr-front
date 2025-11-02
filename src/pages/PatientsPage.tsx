@@ -19,8 +19,10 @@ export default function PatientsPage({ onViewPatient }: PatientsPageProps) {
     dateOfBirth: '',
     gender: '',
     phone: '',
-    email: '',
-    bloodType: '',
+    address: '',
+    amka: '',
+    medicalHistory:'',
+    allergies:''
   });
 
   const API_BASE = 'http://localhost:8080/api/patients';
@@ -60,8 +62,10 @@ export default function PatientsPage({ onViewPatient }: PatientsPageProps) {
         dateOfBirth: '',
         gender: '',
         phone: '',
-        email: '',
-        bloodType: '',
+        address: '',
+        amka: '',
+        medicalHistory:'',
+        allergies:''
       });
     } catch (err: any) {
       alert(err.message);
@@ -240,13 +244,13 @@ export default function PatientsPage({ onViewPatient }: PatientsPageProps) {
                 </div>
                 <div>
                   <label className="text-sm text-gray-600 dark:text-gray-300">
-                    Email
+                    Address
                   </label>
                   <input
-                    type="email"
-                    value={newPatient.email}
+                    type="address"
+                    value={newPatient.address}
                     onChange={(e) =>
-                      setNewPatient({ ...newPatient, email: e.target.value })
+                      setNewPatient({ ...newPatient, address: e.target.value })
                     }
                     className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 mt-1"
                   />
@@ -255,17 +259,48 @@ export default function PatientsPage({ onViewPatient }: PatientsPageProps) {
 
               <div>
                 <label className="text-sm text-gray-600 dark:text-gray-300">
-                  Blood Type
+                  AMKA
                 </label>
                 <input
                   type="text"
-                  value={newPatient.bloodType}
+                  value={newPatient.amka}
                   onChange={(e) =>
-                    setNewPatient({ ...newPatient, bloodType: e.target.value })
+                    setNewPatient({ ...newPatient, amka: e.target.value })
                   }
                   className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 mt-1"
                 />
               </div>
+
+              <div>
+                <label className="text-sm text-gray-600 dark:text-gray-300">
+                  Allergies
+                </label>
+                <input
+                  type="text"
+                  value={newPatient.allergies}
+                  onChange={(e) =>
+                    setNewPatient({ ...newPatient, allergies: e.target.value })
+                  }
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 mt-1"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600 dark:text-gray-300">
+                  Medical History
+                </label>
+
+                <textarea
+                  value={newPatient.medicalHistory}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setNewPatient({ ...newPatient, medicalHistory: e.target.value })
+                  }
+                  rows={4}
+                  className="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 mt-1 resize-y focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter relevant medical history"
+                />
+              </div>
+
 
               <div className="flex justify-end gap-3 mt-6">
                 <button
@@ -350,7 +385,7 @@ export default function PatientsPage({ onViewPatient }: PatientsPageProps) {
                         {patient.email}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm">{patient.bloodType || '-'}</td>
+                    <td className="px-6 py-4 text-sm">{patient.amka || '-'}</td>
                     <td className="px-6 py-4 text-sm">{formatDate(patient.createdAt)}</td>
                     <td className="px-6 py-4 text-right">
                       <button

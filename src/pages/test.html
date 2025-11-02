@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>ΑΠΥ - Απόδειξη Παροχής Υπηρεσιών</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { text-align: center; margin-bottom: 30px; }
+        .section { margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        table, th, td { border: 1px solid #000; }
+        th, td { padding: 6px; font-size: 14px; }
+        .no-border { border: none !important; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .footer { margin-top: 40px; text-align: center; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <h2>ΑΠΥ (Απόδειξη Παροχής Υπηρεσιών)</h2>
+
+    <!-- Στοιχεία Εκδότη -->
+    <div class="section">
+        <strong>Επωνυμία:</strong> {{issuer_name}}<br>
+        <strong>Α.Φ.Μ.:</strong> {{issuer_afm}}<br>
+        <strong>Επάγγελμα:</strong> {{issuer_profession}}<br>
+        <strong>Δ.Ο.Υ.:</strong> {{issuer_doy}}<br>
+        <strong>Διεύθυνση:</strong> {{issuer_address}}<br>
+    </div>
+
+    <!-- Στοιχεία Παραστατικού -->
+    <div class="section">
+        <table>
+            <tr>
+                <th>Σειρά</th>
+                <th>Α.Α.</th>
+                <th>Ημερομηνία</th>
+                <th>Τρόπος Πληρωμής</th>
+                <th>MARK</th>
+            </tr>
+            <tr>
+                <td>{{receipt_series}}</td>
+                <td>{{receipt_number}}</td>
+                <td>{{receipt_date}}</td>
+                <td>{{payment_method}}</td>
+                <td>{{mark_code}}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Στοιχεία Πελάτη -->
+    <div class="section">
+        <strong>Α.Φ.Μ. Πελάτη:</strong> {{customer_afm}}<br>
+        <strong>Επωνυμία/Όνομα:</strong> {{customer_name}}<br>
+        <strong>Διεύθυνση:</strong> {{customer_address}}<br>
+    </div>
+
+    <!-- Γραμμή προϊόντος/υπηρεσίας -->
+    <div class="section">
+        <table>
+            <tr>
+                <th>Κωδ.</th>
+                <th>Περιγραφή</th>
+                <th>Ποσότητα</th>
+                <th>Τιμή (€)</th>
+                <th>Αξία (€)</th>
+                <th>ΦΠΑ</th>
+                <th>Τελ. Αξία (€)</th>
+            </tr>
+            {{#items}}
+            <tr>
+                <td>{{code}}</td>
+                <td>{{description}}</td>
+                <td>{{qty}}</td>
+                <td class="right">{{price}}</td>
+                <td class="right">{{subtotal}}</td>
+                <td class="right">{{vat}}</td>
+                <td class="right">{{total}}</td>
+            </tr>
+            {{/items}}
+        </table>
+    </div>
+
+    <!-- Σύνολα -->
+    <div class="section right bold">
+        Πληρωτέο (€): {{total_amount}}
+    </div>
+
+    <div class="section footer">
+        Παρατηρήσεις: {{notes}}<br><br>
+        Σελίδα 1 από 1
+    </div>
+
+</body>
+</html>
