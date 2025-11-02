@@ -11,6 +11,8 @@ import {
   Activity,
   AlertCircle,
   Droplet,
+  Eye,
+  FileText,
 } from 'lucide-react';
 import { Patient } from '../types';
 
@@ -22,6 +24,9 @@ interface Visit {
   notes?: string;
   doctorName?: string;
   studyInstanceUid?: string | null;
+  diagnosis?: string;
+  followUpDate?: string;
+  treatment?: string;
 }
 
 interface PatientDetailsPageProps {
@@ -41,7 +46,6 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   const API_BASE = 'http://localhost:8080/api/patients';
   const VISITS_API = 'http://localhost:8080/api/visits';
 
-  // ✅ Fetch patient and visits
   useEffect(() => {
     if (!patientId) return;
 
@@ -88,6 +92,16 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
       setFormData({ ...patient });
       setIsEditing(true);
     }
+  };
+
+    const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   const handleCancel = () => {
@@ -157,7 +171,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
   if (!patient) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
           <p className="text-gray-500">No patient selected</p>
           <button
             onClick={onBack}
@@ -178,7 +192,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
       <div className="mb-6 flex items-center justify-between">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-100 font-medium"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Patients
@@ -188,7 +202,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
           
           <button
             onClick={handleEdit}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             <Edit2 className="w-4 h-4" />
             Edit Patient
@@ -214,10 +228,10 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
       </div>
 
       {/* Patient Info */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
+            <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-3xl font-bold text-blue-600">
               {displayData?.firstName?.[0]}
               {displayData?.lastName?.[0]}
             </div>
@@ -228,14 +242,14 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     type="text"
                     value={formData.firstName || ''}
                     onChange={(e) => handleChange('firstName', e.target.value)}
-                    className="px-3 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    className="px-3 py-2 bg-white dark:bg-gray-800/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
                     placeholder="First Name"
                   />
                   <input
                     type="text"
                     value={formData.lastName || ''}
                     onChange={(e) => handleChange('lastName', e.target.value)}
-                    className="px-3 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                    className="px-3 py-2 bg-white dark:bg-gray-800/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
                     placeholder="Last Name"
                   />
                 </div>
@@ -258,7 +272,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Left column */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Personal Information</h3>
 
               {/* Date of Birth */}
               <div>
@@ -274,7 +288,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">
+                  <p className="text-gray-900 dark:text-gray-100">
                     {displayData?.dateOfBirth && formatDate(displayData.dateOfBirth)}
                   </p>
                 )}
@@ -298,7 +312,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     <option value="Other">Other</option>
                   </select>
                 ) : (
-                  <p className="text-gray-900">{displayData?.gender}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{displayData?.gender}</p>
                 )}
               </div>
 
@@ -325,14 +339,14 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     <option value="O-">O-</option>
                   </select>
                 ) : (
-                  <p className="text-gray-900">{displayData?.bloodType || '-'}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{displayData?.bloodType || '-'}</p>
                 )}
               </div>
             </div>
 
             {/* Right column */}
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Contact Information</h3>
 
               {/* Phone */}
               <div>
@@ -348,7 +362,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">{displayData?.phone || '-'}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{displayData?.phone || '-'}</p>
                 )}
               </div>
 
@@ -366,7 +380,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">{displayData?.email || '-'}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{displayData?.email || '-'}</p>
                 )}
               </div>
 
@@ -384,15 +398,15 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900">{displayData?.address || '-'}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{displayData?.address || '-'}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Medical Info */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Medical Information</h3>
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Information</h3>
             <div className="space-y-6">
               {/* Allergies */}
               <div>
@@ -410,7 +424,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                 ) : (
                   <p
                     className={`${
-                      displayData?.allergies ? 'text-red-700 font-medium' : 'text-gray-900'
+                      displayData?.allergies ? 'text-red-700 font-medium' : 'text-gray-900 dark:text-gray-100'
                     }`}
                   >
                     {displayData?.allergies || 'No known allergies'}
@@ -431,7 +445,7 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 ) : (
-                  <p className="text-gray-900 whitespace-pre-wrap">
+                  <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">
                     {displayData?.medicalHistory || 'No medical history recorded'}
                   </p>
                 )}
@@ -440,58 +454,88 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
           </div>
 
           {/* ✅ Visits Section */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Patient Visits</h3>
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Patient Visits</h3>
 
             {loadingVisits ? (
               <p className="text-gray-500">Loading visits...</p>
             ) : visits.length === 0 ? (
               <p className="text-gray-500">No visits recorded for this patient.</p>
             ) : (
-              <ul className="divide-y divide-gray-200">
-                {visits.map((visit) => (
-                  <li key={visit.id} className="py-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {new Date(visit.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
-                        </p>
-                        <p className="text-gray-600 text-sm">
-                          {visit.reason || 'No reason specified'}
-                        </p>
-                        {visit.notes && (
-                          <p className="text-gray-700 text-sm mt-1 italic">{visit.notes}</p>
-                        )}
+              <ul className="flex flex-wrap gap-6">
 
-                        {/* ✅ Εμφάνιση κουμπιού μόνο αν υπάρχει StudyInstanceUid */}
-                      {visit.studyInstanceUid && visit.studyInstanceUid.trim() !== '' && (
-                        <button
-                          onClick={() =>
-                            window.open(
-                              `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${visit.studyInstanceUid}`,
-                              '_blank'
-                            )
-                          }
-                          className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          <Activity className="w-4 h-4" />
-                          Open Study
-                        </button>
-                      )}
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {visits.map((visit) => (
+                    <li key={visit.id} className="flex">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Visit Details</h3>
 
+                        <div className="space-y-4">
+                          <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                              <Calendar className="w-4 h-4" />
+                              Visit Date
+                            </label>
+                            <p className="text-gray-900 dark:text-gray-100">{formatDateTime(visit.date)}</p>
+                          </div>
+
+                          <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1">
+                              <FileText className="w-4 h-4" />
+                              Reason
+                            </label>
+                            <p className="text-gray-900 dark:text-gray-100">{visit.reason}</p>
+                          </div>
+
+                          {visit.diagnosis && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 mb-1 block">Diagnosis</label>
+                              <p className="text-gray-900 dark:text-gray-100">{visit.diagnosis}</p>
+                            </div>
+                          )}
+
+                          {visit.treatment && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 mb-1 block">Treatment</label>
+                              <p className="text-gray-900 dark:text-gray-100">{visit.treatment}</p>
+                            </div>
+                          )}
+
+                          {visit.notes && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 mb-1 block">Notes</label>
+                              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{visit.notes}</p>
+                            </div>
+                          )}
+
+                          {visit.followUpDate && (
+                            <div>
+                              <label className="text-sm font-medium text-gray-700 mb-1 block">Follow-up Date</label>
+                              <p className="text-gray-900 dark:text-gray-100">{formatDate(visit.followUpDate)}</p>
+                            </div>
+                          )}
+
+                          {visit.studyInstanceUid && (
+                            <div className="mt-4 pt-4 border-t border-gray-100">
+                              <label className="text-sm font-medium text-gray-700 mb-1 block">Imaging</label>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const ohifUrl = `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${visit.studyInstanceUid}`;
+                                  window.open(ohifUrl, '_blank');
+                                }}
+                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm hover:bg-indigo-700 transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                                Open in OHIF Viewer
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {visit.doctorName && (
-                        <span className="text-sm text-blue-600 font-medium">
-                          Dr. {visit.doctorName}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ))}
+                </ul>                
               </ul>
             )}
           </div>

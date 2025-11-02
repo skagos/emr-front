@@ -80,7 +80,7 @@ export default function VisitHistoryPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Visit History</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Visit History</h2>
         <p className="text-gray-600">View and search all patient visits</p>
       </div>
 
@@ -101,7 +101,7 @@ export default function VisitHistoryPage() {
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white cursor-pointer"
+            className="pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-800 cursor-pointer"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -116,15 +116,15 @@ export default function VisitHistoryPage() {
         {/* 🩺 Visits List */}
         <div className="lg:col-span-2">
           {visits.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
               <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No visits recorded</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No visits recorded</h3>
               <p className="text-gray-600">Visit records will appear here once created</p>
             </div>
           ) : filteredVisits.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
               <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No visits found</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No visits found</h3>
               <p className="text-gray-600">Try adjusting your search or filters</p>
             </div>
           ) : (
@@ -132,10 +132,10 @@ export default function VisitHistoryPage() {
               {filteredVisits.map((visit) => (
                 <div
                   key={visit.id}
-                  className={`bg-white rounded-lg shadow-sm border transition-all cursor-pointer ${
+                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border transition-all cursor-pointer ${
                     selectedVisit?.id === visit.id
                       ? 'border-blue-500 ring-2 ring-blue-200'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                   }`}
                   onClick={() => setSelectedVisit(visit)}
                 >
@@ -147,7 +147,7 @@ export default function VisitHistoryPage() {
                           {visit.patient?.lastName?.[0]}
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                             {visit.patient?.firstName} {visit.patient?.lastName}
                           </h3>
                           <p className="text-sm text-gray-600 flex items-center gap-1">
@@ -163,12 +163,12 @@ export default function VisitHistoryPage() {
                     <div className="space-y-2">
                       <div>
                         <span className="text-sm font-medium text-gray-700">Reason: </span>
-                        <span className="text-sm text-gray-900">{visit.reason}</span>
+                        <span className="text-sm text-gray-900 dark:text-gray-100">{visit.reason}</span>
                       </div>
                       {visit.diagnosis && (
                         <div>
                           <span className="text-sm font-medium text-gray-700">Diagnosis: </span>
-                          <span className="text-sm text-gray-900">{visit.diagnosis}</span>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">{visit.diagnosis}</span>
                         </div>
                       )}
                       {visit.followUpDate && (
@@ -189,7 +189,7 @@ export default function VisitHistoryPage() {
                                 const ohifUrl = `http://localhost:8042/ohif/viewer?StudyInstanceUIDs=${visit.studyInstanceUid}`;
                                 window.open(ohifUrl, '_blank');
                               }}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 dark:bg-blue-500 text-white rounded-md text-sm hover:bg-blue-700 transition-colors"
                             >
                               <Eye className="w-4 h-4" />
                               View Imaging
@@ -207,8 +207,8 @@ export default function VisitHistoryPage() {
         {/* 👁️ Visit Details Panel */}
         <div className="lg:col-span-1">
           {selectedVisit ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Visit Details</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-8">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Visit Details</h3>
 
               <div className="space-y-4">
                 <div>
@@ -216,7 +216,7 @@ export default function VisitHistoryPage() {
                     <User className="w-4 h-4" />
                     Patient
                   </label>
-                  <p className="text-gray-900">
+                  <p className="text-gray-900 dark:text-gray-100">
                     {selectedVisit.patient?.firstName} {selectedVisit.patient?.lastName}
                   </p>
                   {selectedVisit.patient?.allergies && (
@@ -231,7 +231,7 @@ export default function VisitHistoryPage() {
                     <Calendar className="w-4 h-4" />
                     Visit Date
                   </label>
-                  <p className="text-gray-900">{formatDateTime(selectedVisit.visitDate)}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{formatDateTime(selectedVisit.visitDate)}</p>
                 </div>
 
                 <div>
@@ -239,34 +239,34 @@ export default function VisitHistoryPage() {
                     <FileText className="w-4 h-4" />
                     Reason
                   </label>
-                  <p className="text-gray-900">{selectedVisit.reason}</p>
+                  <p className="text-gray-900 dark:text-gray-100">{selectedVisit.reason}</p>
                 </div>
 
                 {selectedVisit.diagnosis && (
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 block">Diagnosis</label>
-                    <p className="text-gray-900">{selectedVisit.diagnosis}</p>
+                    <p className="text-gray-900 dark:text-gray-100">{selectedVisit.diagnosis}</p>
                   </div>
                 )}
 
                 {selectedVisit.treatment && (
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 block">Treatment</label>
-                    <p className="text-gray-900">{selectedVisit.treatment}</p>
+                    <p className="text-gray-900 dark:text-gray-100">{selectedVisit.treatment}</p>
                   </div>
                 )}
 
                 {selectedVisit.notes && (
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 block">Notes</label>
-                    <p className="text-gray-900 whitespace-pre-wrap">{selectedVisit.notes}</p>
+                    <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{selectedVisit.notes}</p>
                   </div>
                 )}
 
                 {selectedVisit.followUpDate && (
                   <div>
                     <label className="text-sm font-medium text-gray-700 mb-1 block">Follow-up Date</label>
-                    <p className="text-gray-900">{formatDate(selectedVisit.followUpDate)}</p>
+                    <p className="text-gray-900 dark:text-gray-100">{formatDate(selectedVisit.followUpDate)}</p>
                   </div>
                 )}
                   {/* ✅ κουμπί OHIF viewer στο details panel */}
@@ -289,7 +289,7 @@ export default function VisitHistoryPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center sticky top-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center sticky top-8">
               <Eye className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">Select a visit to view details</p>
             </div>

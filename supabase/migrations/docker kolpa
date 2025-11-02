@@ -36,3 +36,7 @@ Get-ChildItem -Path . -Filter '*.gz' -File | ForEach-Object {
     $outStream.Close()
     $inStream.Close()
 }
+
+
+σελιδα ρυθμησεων - γιατρου
+1. βαζει το κινητο του και υπαρχει ενα κουμπι για αναιβασμα φωτογραφιας απο κινητο εκει του παει ενα url στο κινητο η watchup κια αναιβαζει φωτο που γινεται dicom

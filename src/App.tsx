@@ -7,6 +7,7 @@ import NewVisitPage from './pages/NewVisitPage';
 import VisitHistoryPage from './pages/VisitHistoryPage';
 import PatientFormModal from './components/PatientFormModal';
 import { Patient } from './types';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('calendar');
@@ -61,15 +62,17 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation currentPage={currentPage} onNavigate={handleNavigate} />
-      {renderPage()}
-      <PatientFormModal
-        isOpen={isPatientModalOpen}
-        onClose={() => setIsPatientModalOpen(false)}
-        onSave={handleSavePatient}
-      />
-    </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+        <Navigation currentPage={currentPage} onNavigate={handleNavigate} />
+        {renderPage()}
+        <PatientFormModal
+          isOpen={isPatientModalOpen}
+          onClose={() => setIsPatientModalOpen(false)}
+          onSave={handleSavePatient}
+        />
+      </div>
+    </ThemeProvider>
   );
 }
 

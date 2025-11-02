@@ -281,11 +281,11 @@ export default function CalendarPage() {
         <div
           key={day}
           onClick={() => setSelectedDate(date)}
-          className={`aspect-square p-2 border border-gray-200 cursor-pointer transition-all hover:bg-gray-50 ${
-            isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'
+          className={`aspect-square p-2 border border-gray-200 dark:border-gray-700 cursor-pointer transition-all hover:bg-gray-50 ${
+            isToday ? 'bg-blue-50 border-blue-300' : 'bg-white dark:bg-gray-800'
           } ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
         >
-          <div className={`text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>
+          <div className={`text-sm font-semibold mb-1 ${isToday ? 'text-blue-600' : 'text-gray-900 dark:text-gray-100'}`}>
             {day}
           </div>
           <div className="space-y-1">
@@ -326,7 +326,7 @@ export default function CalendarPage() {
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading Google Calendar...</p>
         </div>
@@ -337,8 +337,8 @@ export default function CalendarPage() {
   if (!CLIENT_ID || !API_KEY) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Google Calendar Configuration Required</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Google Calendar Configuration Required</h3>
           <p className="text-gray-600 mb-4">Please add your Google Calendar API credentials to the environment variables.</p>
           <div className="text-left max-w-2xl mx-auto bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-700 mb-2">Add these to your .env file:</p>
@@ -355,12 +355,12 @@ export default function CalendarPage() {
   if (!isSignedIn) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Connect to Google Calendar</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Connect to Google Calendar</h3>
           <p className="text-gray-600 mb-6">Sign in with your Google account to view and edit your calendar</p>
           <button
             onClick={handleSignIn}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             <LogIn className="w-5 h-5" />
             Sign in with Google
@@ -374,7 +374,7 @@ export default function CalendarPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Google Calendar</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Google Calendar</h2>
           <p className="text-gray-600">View and manage your appointments</p>
         </div>
         <button
@@ -388,12 +388,12 @@ export default function CalendarPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
               <div className="flex items-center justify-between">
                 <button
                   onClick={previousMonth}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-2 hover:bg-white dark:bg-gray-800/20 rounded-lg transition-colors"
                 >
                   <ChevronLeft className="w-5 h-5 text-white" />
                 </button>
@@ -402,7 +402,7 @@ export default function CalendarPage() {
                 </h3>
                 <button
                   onClick={nextMonth}
-                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-2 hover:bg-white dark:bg-gray-800/20 rounded-lg transition-colors"
                 >
                   <ChevronRight className="w-5 h-5 text-white" />
                 </button>
@@ -410,14 +410,14 @@ export default function CalendarPage() {
               <div className="flex justify-center mt-3">
                 <button
                   onClick={goToToday}
-                  className="px-4 py-1.5 bg-white/20 hover:bg-white/30 text-white text-sm rounded-lg transition-colors"
+                  className="px-4 py-1.5 bg-white dark:bg-gray-800/20 hover:bg-white dark:bg-gray-800/30 text-white text-sm rounded-lg transition-colors"
                 >
                   Today
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200">
+            <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200 dark:border-gray-700">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                 <div key={day} className="px-2 py-3 text-center text-sm font-semibold text-gray-700">
                   {day}
@@ -432,9 +432,9 @@ export default function CalendarPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-8">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {selectedDate
                   ? selectedDate.toLocaleDateString('en-US', {
                       month: 'long',
@@ -444,7 +444,7 @@ export default function CalendarPage() {
               </h3>
               <button
                 onClick={openNewEventModal}
-                className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="p-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 text-white rounded-lg transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -456,9 +456,9 @@ export default function CalendarPage() {
                   {selectedDateEvents.map((event) => (
                     <div
                       key={event.id}
-                      className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 transition-colors"
                     >
-                      <div className="font-semibold text-gray-900 mb-2">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                         {event.summary}
                       </div>
                       {event.start.dateTime ? (
@@ -504,7 +504,7 @@ export default function CalendarPage() {
                   <p className="text-gray-500 text-sm">No events scheduled</p>
                   <button
                     onClick={openNewEventModal}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                   >
                     <Plus className="w-4 h-4" />
                     Add Event
@@ -523,8 +523,8 @@ export default function CalendarPage() {
 
       {showEventModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               {editingEvent ? 'Edit Event' : 'New Event'}
             </h3>
             <div className="space-y-4">
@@ -608,7 +608,7 @@ export default function CalendarPage() {
               </button>
               <button
                 onClick={handleSaveEvent}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
                 {editingEvent ? 'Update' : 'Create'}
               </button>
