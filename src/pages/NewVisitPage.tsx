@@ -78,6 +78,12 @@ export default function NewVisitPage({ preselectedPatientId }: NewVisitPageProps
       return;
     }
 
+  // const handleFileUploadToCloudinary = async () => {
+  //   if (!fileUploads || fileUploads.length === 0 || !selectedPatient) {
+  //     setFileUploadStatus("Please select files first.");
+  //     return;
+  //   }
+
     setDicomUploading(true);
     setDicomUploadStatus("Uploading to Orthanc...");
 
