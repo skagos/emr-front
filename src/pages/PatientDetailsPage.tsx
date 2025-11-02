@@ -15,6 +15,7 @@ import {
   FileText,
   Sun,
   Moon,
+  Plus,
 } from 'lucide-react';
 import { Patient } from '../types';
 
@@ -34,11 +35,12 @@ interface Visit {
 interface PatientDetailsPageProps {
   patientId: string | null;
   onBack: () => void;
+  onStartNewVisit?: (patientId: string) => void; // <-- NEW optional prop
 }
 
 // NOTE: this component expects Tailwind configured with `darkMode: 'class'` in tailwind.config.js
 
-export default function PatientDetailsPage({ patientId, onBack }: PatientDetailsPageProps) {
+export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit }: PatientDetailsPageProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [formData, setFormData] = useState<Partial<Patient>>({});
@@ -244,6 +246,18 @@ export default function PatientDetailsPage({ patientId, onBack }: PatientDetails
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               <span className="sr-only">Toggle theme</span>
             </button>
+
+             {/* NEW: Start Visit button (visible when patient exists) */}
+            {patient && (
+              <button
+                onClick={() => onStartNewVisit?.(patient.id)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors font-medium"
+              >
+                <Plus className="w-4 h-4" /> {/* import Plus from lucide-react at top */}
+                New Visit
+              </button>
+            )}
+
           </div>
 
           {!isEditing ? (

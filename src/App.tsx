@@ -34,6 +34,12 @@ function App() {
     }
   };
 
+
+  const handleStartNewVisit = (patientId: string) => {
+    setSelectedPatientId(patientId);
+    setCurrentPage('new-visit');
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'calendar':
@@ -50,6 +56,7 @@ function App() {
           <PatientDetailsPage
             patientId={selectedPatientId}
             onBack={() => setCurrentPage('patients')}
+            onStartNewVisit={handleStartNewVisit}
           />
         );
       case 'new-visit':

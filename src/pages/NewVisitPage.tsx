@@ -39,22 +39,38 @@ export default function NewVisitPage({ preselectedPatientId }: NewVisitPageProps
   const [dicomUploading, setDicomUploading] = useState(false);
 
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const res = await fetch("http://localhost:8080/api/patients");
-        if (!res.ok) throw new Error("Failed to fetch patients");
-        const data = await res.json();
-        setPatients(data);
+        // 1️⃣ Fetch all patients for search list
+        const patientsRes = await fetch("http://localhost:8080/api/patients");
+        if (!patientsRes.ok) throw new Error("Failed to fetch patients");
+        const patientsData = await patientsRes.json();
+        setPatients(patientsData);
+
+        // 2️⃣ If preselectedPatientId provided, fetch that specific patient
+        if (preselectedPatientId) {
+          const selectedRes = await fetch(
+            `http://localhost:8080/api/patients/${preselectedPatientId}`
+          );
+          if (!selectedRes.ok) throw new Error("Failed to fetch selected patient");
+          const selectedData = await selectedRes.json();
+
+          setSelectedPatient(selectedData);
+          setShowPatientSearch(false); // hide search since a patient is preselected
+        }
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || "Something went wrong while loading data");
       } finally {
         setLoading(false);
       }
     };
-    fetchPatients();
-  }, []);
+
+    fetchData();
+  }, [preselectedPatientId]);
+
 
   const handleDicomUploadToOrthanc = async () => {
     if (!dicomFiles || dicomFiles.length === 0) {
