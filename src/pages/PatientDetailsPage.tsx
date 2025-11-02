@@ -36,11 +36,12 @@ interface PatientDetailsPageProps {
   patientId: string | null;
   onBack: () => void;
   onStartNewVisit?: (patientId: string) => void; // <-- NEW optional prop
+  onEditVisit?: (visitId: string) => void;
 }
 
 // NOTE: this component expects Tailwind configured with `darkMode: 'class'` in tailwind.config.js
 
-export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit }: PatientDetailsPageProps) {
+export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit, onEditVisit }: PatientDetailsPageProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [patient, setPatient] = useState<Patient | null>(null);
   const [formData, setFormData] = useState<Partial<Patient>>({});
@@ -587,6 +588,15 @@ export default function PatientDetailsPage({ patientId, onBack, onStartNewVisit 
                               >
                                 <Eye className="w-4 h-4" />
                                 Open in OHIF Viewer
+                              </button>
+
+                              
+                              {/* Update Visit Button */}
+                              <button
+                                onClick={() => onEditVisit?.(visit.id)}
+                                className="ml-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
+                              >
+                                Update Visit
                               </button>
                             </div>
                           )}

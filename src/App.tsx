@@ -8,11 +8,13 @@ import VisitHistoryPage from './pages/VisitHistoryPage';
 import PatientFormModal from './components/PatientFormModal';
 import { Patient } from './types';
 import { ThemeProvider } from './context/ThemeContext';
+import UpdateVisitPage from './pages/UpdateVisitPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('calendar');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+  const [currentVisitId, setCurrentVisitId] = useState<string | null>(null);
 
   const handleViewPatient = (patientId: string) => {
     setSelectedPatientId(patientId);
@@ -34,6 +36,10 @@ function App() {
     }
   };
 
+  const handleEditVisit = (visitId: string) => {
+    setCurrentVisitId(visitId);
+    setCurrentPage('update-visit');
+  };
 
   const handleStartNewVisit = (patientId: string) => {
     setSelectedPatientId(patientId);
@@ -57,10 +63,18 @@ function App() {
             patientId={selectedPatientId}
             onBack={() => setCurrentPage('patients')}
             onStartNewVisit={handleStartNewVisit}
+            onEditVisit={handleEditVisit}
           />
         );
       case 'new-visit':
         return <NewVisitPage preselectedPatientId={selectedPatientId} />;
+      case 'update-visit':
+          return (
+            <UpdateVisitPage
+              visitId={currentVisitId}
+              onBack={() => setCurrentPage('patient-details')}
+            />
+          );
       case 'history':
         return <VisitHistoryPage />;
       default:
